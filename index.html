@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Mayhem - GTA5 Car Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            background-color: #1d1d1d;
+            padding: 40px;
+            border-radius: 20px;
+            color: #fff;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin: 0;
+            font-family: 'Pacifico', cursive;
+        }
+
+        header p {
+            font-size: 1.2em;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            background-color: #1d1d1d;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            background-color: #1d1d1d; /* Background color for the navigation links */
+        }
+
+        nav a:before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: -15px;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover:before {
+            opacity: 1;
+        }
+
+        nav a:hover {
+            background-color: #555; /* Background color on hover */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        a[href^="#"] {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        a[href^="#"]:hover {
+            background-color: #555;
+        }
+
+        section {
+            background-color: #fff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 2px solid #1d1d1d;
+        }
+
+        section h2 {
+            color: #1d1d1d;
+        }
+
+        button {
+            background-color: #1d1d1d;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        form label, form input {
+            margin: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: #1d1d1d;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .spacer {
+            height: 30px;
+        }
+
+        .word-guess-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 2px solid #1d1d1d;
+            margin: 0 auto; /* Center-align the card */
+            max-width: 600px; /* Set a maximum width */
+            padding: 20px;
+            text-align: center; /* Center-align text inside the card */
+            margin-bottom: 20px;
+        }
+
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Motor Mayhem</h1>
+            <p>A fusion of GTA5 and intense car racing action!</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#gameplay">Gameplay</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="developer_portal.html">Developer Portal</a></li> <!-- Added Developer Portal link -->
+            </ul>
+        </div>
+    </nav>
+
+    <section id="about">
+        <div class="container">
+            <h2>About Motor Mayhem</h2>
+            <p>Explore the thrilling world of Motor Mayhem, where you can experience the adrenaline rush of high-speed car chases and the chaos of a GTA5-inspired environment.</p>
+        </div>
+    </section>
+
+    <section id="gameplay">
+        <div class="container">
+            <h2>Gameplay</h2>
+            <p>Get ready for heart-pounding action as you race through the city streets, evading cops and rival gangs. Customize your ride and dominate the streets in style!</p>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>If you have any questions or feedback, feel free to reach out to us!</p>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required><br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </section>
+
+    <section id="game">
+        <div class="container word-guess-container">
+            <h2>Word Guessing Game</h2>
+            <p>Try to guess the word:</p>
+            <p id="word-blank"></p>
+            <input type="text" id="guess">
+            <button onclick="checkGuess()">Submit Guess</button>
+            <p class="result" id="result"></p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Motor Mayhem. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function checkGuess() {
+            const word = "OpenAI";
+            const guess = document.getElementById("guess").value.toLowerCase();
+            const wordBlank = document.getElementById("word-blank");
+            const result = document.getElementById("result");
+            const correctSound = new Audio('correct.mp3');
+            const wrongSound = new Audio('wrong.mp3');
+
+            if (guess === word.toLowerCase()) {
+                wordBlank.innerText = word;
+                result.innerText = "Congratulations! You guessed the word!";
+                result.style.color = "green";
+                correctSound.play();
+            } else {
+                result.innerText = "Sorry, wrong guess. Try again!";
+                result.style.color = "red";
+                wrongSound.play();
+            }
+        }
+    </script>
+</body>
+
+</html>

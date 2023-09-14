@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    /* Add any custom styling here */
+    body {
+      font-family: 'Comfortaa', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    section {
+      background-color: #fff;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 20px;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+
+    #chatSection {
+      display: none;
+    }
+
+    #chatForm input[type="text"] {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #chatForm button {
+      width: 20%;
+      margin-left: 10px;
+      background-color: #555;
+      color: #fff;
+    }
+
+    #chatMessages {
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 200px;
+      overflow-y: scroll;
+      background-color: #f9f9f9;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    .message .profile {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+    }
+
+    .message .profile img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .message .profile .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .message .profile .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .message .profile:hover .tooltip .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .message .content {
+      flex-grow: 1;
+    }
+
+    .message .content p {
+      margin: 0;
+      color: black;
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .login-container button {
+      width: 100%;
+      background-color: #333;
+    }
+
+    .settings-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .settings-dropdown {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .settings-dropdown button {
+      width: 100%;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .settings-button:hover .settings-dropdown {
+      display: block;
+    }
+
+    .channel-creation-button {
+      font-size: 24px;
+      color: #777;
+      cursor: pointer;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .channel-creation-button:hover {
+      color: #555;
+    }
+
+    .channel-creation-button::before {
+      content: '+';
+    }
+
+    .channels-heading {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .channels-heading-title {
+      flex-grow: 1;
+    }
+
+    .channel-creation-modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .channel-creation-modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .channel-creation-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .channel-creation-modal-header h2 {
+      margin: 0;
+    }
+
+    .channel-creation-modal-close {
+      cursor: pointer;
+    }
+
+    .channel-creation-modal-body {
+      margin-bottom: 20px;
+    }
+
+    .channel-creation-modal-body label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .channel-creation-modal-body input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .channel-creation-modal-footer {
+      text-align: right;
+    }
+
+    .channel-creation-modal-footer button {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .channel-creation-modal-footer button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+
+    /* New CSS for player sidebar */
+    .player-sidebar {
+      position: fixed;
+      top: 0;
+      right: -250px; /* Initially hidden */
+      width: 250px;
+      height: 100%;
+      background: #333;
+      color: #fff;
+      overflow-y: auto;
+      transition: 0.5s;
+      padding-top: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .player-list {
+      padding: 0;
+      list-style: none;
+    }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .player-item img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .player-item p {
+      margin: 0;
+    }
+
+    .players-button {
+      background-color: #333;
+    }
+
+    .players-button:hover {
+      background-color: #555;
+    }
+
+    .show-sidebar .player-sidebar {
+      right: 0;
+    }
+
+    .show-sidebar .main-content {
+      margin-right: 250px;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+  </header>
+
+  <section id="channels">
+    <div class="channels-heading">
+      <h2 class="channels-heading-title">Channels</h2>
+      <button class="channel-creation-button" onclick="openChannelCreationModal()"></button>
+    </div>
+    <ul id="channelList">
+      <!-- List of channels dynamically added with JavaScript -->
+    </ul>
+  </section>
+
+  <section id="chatSection" style="display: none;">
+    <h2>Chat</h2>
+    <div id="chatMessages"></div>
+    <form id="chatForm">
+      <input type="text" id="messageInput" placeholder="Type your message...">
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section id="loginSection">
+    <div class="login-container">
+      <h2>Login</h2>
+      <input type="text" id="usernameInput" placeholder="Username" required>
+      <input type="password" id="passwordInput" placeholder="Password" required>
+      <button type="button" onclick="login()">Login</button>
+    </div>
+  </section>
+
+  <div class="settings-button">
+    <button onclick="toggleDropdown()">Settings</button>
+    <div class="settings-dropdown" id="dropdownMenu">
+      <button onclick="showPlayers()" class="players-button">Players</button>
+      <button onclick="logout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="channel-creation-modal" id="channelCreationModal">
+    <div class="channel-creation-modal-content">
+      <div class="channel-creation-modal-header">
+        <h2>Create Channel</h2>
+        <span class="channel-creation-modal-close" onclick="closeChannelCreationModal()">&times;</span>
+      </div>
+      <div class="channel-creation-modal-body">
+        <label for="newChannelName">Channel Name:</label>
+        <input type="text" id="newChannelName" placeholder="Enter channel name...">
+      </div>
+      <div class="channel-creation-modal-footer">
+        <button onclick="createChannel()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Sidebar -->
+  <div class="player-sidebar">
+    <ul class="player-list" id="playerList">
+      <!-- List of players dynamically added with JavaScript -->
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <!-- Content goes here -->
+  </div>
+
+  <script>
+    const channels = [
+      { id: 1, name: "General" },
+      { id: 2, name: "Game Updates" },
+      { id: 3, name: "Admin Discussion" }
+    ];
+
+    const admins = [
+      { username: "Armaan", password: "Armaanexcel", displayName: "Armaan", profilePicture: "https://tr.rbxcdn.com/72a6d8f83ec23a37efd7c5c5a32adc63/150/150/AvatarHeadshot/Png" },
+      { username: "Abdulla", password: "Abdullaexcel", displayName: "Abdulla", profilePicture: "https://tr.rbxcdn.com/b790ce449cbbee68ee345be588de04eb/150/150/AvatarHeadshot/Png" },
+      { username: "carlos", password: "carlostwitter", displayName: "carlos", profilePicture: "https://tr.rbxcdn.com/c34d3a83e7a8769a80114fdd9327c063/150/150/AvatarHeadshot/Png" },
+      { username: "alejandro", password: "alejandro123", displayName: "alejandro", profilePicture: "https://tr.rbxcdn.com/641ec75e07b11f4f172b0d8f3830b82a/150/150/AvatarHeadshot/Png" }
+    ];
+
+    const players = [
+      { username: "player1", displayName: "Player 1", profilePicture: "https://tr.rbxcdn.com/72a6d8f83ec23a37efd7c5c5a32adc63/150/150/AvatarHeadshot/Png" },
+      { username: "player2", displayName: "Player 2", profilePicture: "https://tr.rbxcdn.com/b790ce449cbbee68ee345be588de04eb/cb5c6e7/Avatar/Png" },
+      { username: "player3", displayName: "Player 3", profilePicture: "https://tr.rbxcdn.com/c34d3a83e7a8769a80114fdd9327c063/150/150/AvatarHeadshot/Png" },
+      { username: "player4", displayName: "Player 4", profilePicture: "https://tr.rbxcdn.com/641ec75e07b11f4f172b0d8f3830b82a/150/150/AvatarHeadshot/Png" }
+    ];
+
+    let currentChannel = null;
+    let currentUser = null;
+
+    function init() {
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      if (storedUser) {
+        currentUser = storedUser;
+        showChannels();
+      }
+    }
+
+    function showChannels() {
+      const channelList = document.getElementById('channelList');
+      channelList.innerHTML = '';
+      channels.forEach(channel => {
+        const li = document.createElement('li');
+        li.textContent = channel.name;
+        li.addEventListener('click', () => selectChannel(channel));
+        channelList.appendChild(li);
+      });
+    }
+
+    function selectChannel(channel) {
+      currentChannel = channel;
+      document.getElementById('chatSection').style.display = 'block';
+      document.getElementById('channels').style.display = 'none';
+      document.getElementById('chatMessages').innerHTML = '';
+      showChatHeader(channel.name);
+      showPlayersSidebar();
+    }
+
+    function showChatHeader(channelName) {
+      const chatHeader = document.createElement('div');
+      chatHeader.innerHTML = `
+        <h2>${channelName}</h2>
+        <button onclick="goBackToChannels()">Back</button>
+      `;
+      document.getElementById('chatSection').insertBefore(chatHeader, document.getElementById('chatMessages'));
+    }
+
+    function showPlayersSidebar() {
+      const playerList = document.getElementById('playerList');
+      playerList.innerHTML = '';
+      players.forEach(player => {
+        const li = document.createElement('li');
+        li.className = 'player-item';
+        li.innerHTML = `
+          <img src="${player.profilePicture}" alt="${player.displayName}">
+          <p>${player.displayName}</p>
+        `;
+        playerList.appendChild(li);
+      });
+    }
+
+    function goBackToChannels() {
+      currentChannel = null;
+      document.getElementById('chatSection').style.display = 'none';
+      document.getElementById('channels').style.display = 'block';
+      document.querySelector('.channels-heading-title').textContent = 'Channels';
+    }
+
+    function login() {
+      const username = document.getElementById('usernameInput').value;
+      const password = document.getElementById('passwordInput').value;
+      const user = admins.find(admin => admin.username === username && admin.password === password);
+
+      if (user) {
+        currentUser = { username: user.username, displayName: user.displayName, profilePicture: user.profilePicture };
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        showChannels();
+      } else {
+        alert('Invalid credentials. Please try again.');
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('user');
+      document.getElementById('channels').style.display = 'block';
+      document.getElementById('chatSection').style.display = 'none';
+      document.querySelector('.channels-heading-title').textContent = 'Channels';
+    }
+
+    function toggleDropdown() {
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function showPlayers() {
+      // Toggle players sidebar
+      const sidebar = document.querySelector('.player-sidebar');
+      sidebar.classList.toggle('show-sidebar');
+    }
+
+    function openChannelCreationModal() {
+      document.getElementById('channelCreationModal').style.display = 'block';
+    }
+
+    function closeChannelCreationModal() {
+      document.getElementById('channelCreationModal').style.display = 'none';
+    }
+
+    function createChannel() {
+      const newChannelName = document.getElementById('newChannelName').value;
+      if (newChannelName) {
+        const newChannel = { id: channels.length + 1, name: newChannelName };
+        channels.push(newChannel);
+        showChannels();
+        closeChannelCreationModal();
+      }
+    }
+
+    document.getElementById('chatForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = document.getElementById('messageInput').value;
+      if (message && currentChannel) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+
+        const profileDiv = document.createElement('div');
+        profileDiv.classList.add('profile');
+
+        const img = document.createElement('img');
+        img.src = currentUser.profilePicture;
+        img.alt = currentUser.displayName;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.classList.add('content');
+
+        const p = document.createElement('p');
+        p.textContent = message;
+
+        profileDiv.appendChild(img);
+        contentDiv.appendChild(p);
+        messageDiv.appendChild(profileDiv);
+        messageDiv.appendChild(contentDiv);
+
+        chatMessages.appendChild(messageDiv);
+
+        document.getElementById('messageInput').value = '';
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
