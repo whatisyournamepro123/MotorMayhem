@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    /* Add any custom styling here */
+    body {
+      font-family: 'Comfortaa', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    section {
+      background-color: #fff;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 20px;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+
+    #chatSection {
+      display: none;
+    }
+
+    #chatForm {
+      margin-top: 10px;
+    }
+
+    #chatForm input[type="text"] {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #chatForm button {
+      width: 20%;
+      margin-left: 10px;
+      background-color: #555;
+    }
+
+    #chatMessages {
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 200px;
+      overflow-y: scroll;
+      background-color: #f9f9f9;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    .message .profile {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+    }
+
+    .message .profile img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .message .profile .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .message .profile .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .message .profile:hover .tooltip .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .message .content {
+      flex-grow: 1;
+    }
+
+    .message .content p {
+      margin: 0;
+      font-size: 14px; /* Adjusted font size for the message */
+      color: #000; /* Set black color for the message */
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .login-container button {
+      width: 100%;
+      background-color: #333;
+    }
+
+    .settings-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .settings-dropdown {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .settings-dropdown button {
+      width: 100%;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .settings-button:hover .settings-dropdown {
+      display: block;
+    }
+
+    .channel-creation-button {
+      font-size: 24px;
+      color: #777;
+      cursor: pointer;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .channel-creation-button:hover {
+      color: #555;
+    }
+
+    .channel-creation-button::before {
+      content: '+';
+    }
+
+    .channels-heading {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .channels-heading-title {
+      flex-grow: 1;
+    }
+
+    .channel-creation-modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .channel-creation-modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .channel-creation-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .channel-creation-modal-header h2 {
+      margin: 0;
+    }
+
+    .channel-creation-modal-close {
+      cursor: pointer;
+    }
+
+    .channel-creation-modal-body {
+      margin-bottom: 20px;
+    }
+
+    .channel-creation-modal-body label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .channel-creation-modal-body input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .channel-creation-modal-footer {
+      text-align: right;
+    }
+
+    .channel-creation-modal-footer button {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .channel-creation-modal-footer button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+  </header>
+
+  <section id="channels">
+    <div class="channels-heading">
+      <h2 class="channels-heading-title">Channels</h2>
+      <button class="channel-creation-button" onclick="openChannelCreationModal()"></button>
+    </div>
+    <ul id="channelList">
+      <!-- List of channels dynamically added with JavaScript -->
+    </ul>
+  </section>
+
+  <section id="chatSection" style="display: none;">
+    <h2>Chat</h2>
+    <div id="chatMessages"></div>
+    <form id="chatForm">
+      <input type="text" id="messageInput" placeholder="Type your message...">
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section id="loginSection">
+    <div class="login-container">
+      <h2>Login</h2>
+      <input type="text" id="usernameInput" placeholder="Username" required>
+      <input type="password" id="passwordInput" placeholder="Password" required>
+      <button type="button" onclick="login()">Login</button>
+    </div>
+  </section>
+
+  <div class="settings-button">
+    <button onclick="toggleDropdown()">Settings</button>
+    <div class="settings-dropdown" id="dropdownMenu">
+      <button onclick="logout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="channel-creation-modal" id="channelCreationModal">
+    <div class="channel-creation-modal-content">
+      <div class="channel-creation-modal-header">
+        <h2>Create Channel</h2>
+        <span class="channel-creation-modal-close" onclick="closeChannelCreationModal()">&times;</span>
+      </div>
+      <div class="channel-creation-modal-body">
+        <label for="newChannelName">Channel Name:</label>
+        <input type="text" id="newChannelName" placeholder="Enter channel name...">
+      </div>
+      <div class="channel-creation-modal-footer">
+        <button onclick="createChannel()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const channels = [
+      { id: 1, name: "General" },
+      { id: 2, name: "Game Updates" },
+      { id: 3, name: "Admin Discussion" }
+    ];
+
+    const admins = [
+      { username: "Armaan", password: "Armaanexcel", displayName: "Armaan", profilePicture: "https://tr.rbxcdn.com/72a6d8f83ec23a37efd7c5c5a32adc63/150/150/AvatarHeadshot/Png" },
+      { username: "Abdulla", password: "Abdullaexcel", displayName: "Abdulla", profilePicture: "https://tr.rbxcdn.com/b790ce449cbbee68ee345be588de04eb/150/150/AvatarHeadshot/Png" },
+      { username: "carlos", password: "carlostwitter", displayName: "carlos", profilePicture: "https://tr.rbxcdn.com/c34d3a83e7bb86a5acfff83c17bd6954/150/150/AvatarHeadshot/Png" }
+    ];
+
+    let loggedInUser = null;
+    let messages = [];
+
+    function loadMessagesFromLocalStorage() {
+      const storedMessages = localStorage.getItem("messages");
+      if (storedMessages) {
+        messages = JSON.parse(storedMessages);
+        messages.forEach(message => {
+          displayMessage(message.user, message.profilePicture, message.content, message.sender);
+        });
+      }
+    }
+
+    function saveMessagesToLocalStorage() {
+      localStorage.setItem("messages", JSON.stringify(messages));
+    }
+
+    function createChannelButtons() {
+      const channelList = document.getElementById("channelList");
+
+      channels.forEach(channel => {
+        const button = document.createElement("button");
+        button.textContent = channel.name;
+        button.addEventListener("click", function() {
+          switchChannel(channel);
+        });
+
+        const listItem = document.createElement("li");
+        listItem.appendChild(button);
+        channelList.appendChild(listItem);
+      });
+    }
+
+    function switchChannel(channel) {
+      document.getElementById("chatSection").style.display = "block";
+      document.getElementById("chatMessages").innerHTML = "";
+
+      const storedMessages = messages.filter(msg => msg.channel === channel.id);
+      storedMessages.forEach(message => {
+        displayMessage(message.user, message.profilePicture, message.content, message.sender);
+      });
+    }
+
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+
+    messageInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    chatForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      sendMessage();
+    });
+
+    function sendMessage() {
+      const message = messageInput.value;
+      if (message.trim() !== "") {
+        displayMessage(loggedInUser.displayName, loggedInUser.profilePicture, message, loggedInUser.username);
+
+        messages.push({
+          user: loggedInUser.displayName,
+          profilePicture: loggedInUser.profilePicture,
+          content: message,
+          channel: getCurrentChannel().id,
+          sender: loggedInUser.username
+        });
+
+        saveMessagesToLocalStorage();
+
+        messageInput.value = "";
+      }
+    }
+
+    function displayMessage(username, profilePicture, message, sender) {
+      const messageContainer = document.createElement("div");
+      messageContainer.classList.add("message");
+
+      const profileElement = document.createElement("div");
+      profileElement.classList.add("profile");
+
+      const profilePictureElement = document.createElement("img");
+      profilePictureElement.src = profilePicture;
+      profileElement.appendChild(profilePictureElement);
+
+      const tooltipElement = document.createElement("div");
+      tooltipElement.classList.add("tooltip");
+
+      const tooltipTextElement = document.createElement("span");
+      tooltipTextElement.classList.add("tooltiptext");
+      tooltipTextElement.textContent = username;
+      tooltipElement.appendChild(tooltipTextElement);
+
+      profileElement.appendChild(tooltipElement);
+
+      const contentElement = document.createElement("div");
+      contentElement.classList.add("content");
+
+      const messageTextElement = document.createElement("p");
+      messageTextElement.textContent = message;
+      contentElement.appendChild(messageTextElement);
+
+      messageContainer.appendChild(profileElement);
+      messageContainer.appendChild(contentElement);
+
+      const chatMessages = document.getElementById("chatMessages");
+      chatMessages.appendChild(messageContainer);
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Set color of sent message
+      if (sender === loggedInUser.username) {
+        messageTextElement.style.backgroundColor = "#000";
+        messageTextElement.style.color = "#fff";
+        messageTextElement.style.padding = "5px 10px";
+        messageTextElement.style.borderRadius = "5px";
+        messageTextElement.style.display = "inline-block";
+      }
+    }
+
+    function getCurrentChannel() {
+      // Assume that the current channel is the first one
+      return channels[0];
+    }
+
+    function login() {
+  const username = document.getElementById("usernameInput").value;
+  const password = document.getElementById("passwordInput").value;
+
+  const user = admins.find((admin) => admin.username === username && admin.password === password);
+
+  if (user) {
+    loggedInUser = user;
+    localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser)); // Store user in local storage
+    document.getElementById("loginSection").style.display = "none";
+    createChannelButtons();
+    loadMessagesFromLocalStorage();
+    switchChannel(getCurrentChannel());
+  } else {
+    alert("Invalid credentials. Please try again.");
+  }
+}
+
+
+    function logout() {
+      loggedInUser = null;
+      document.getElementById("loginSection").style.display = "block";
+      document.getElementById("channels").style.display = "none";
+      document.getElementById("chatSection").style.display = "none";
+      document.getElementById("channelList").innerHTML = "";
+      document.getElementById("chatMessages").innerHTML = "";
+    }
+
+    function openChannelCreationModal() {
+      const modal = document.getElementById("channelCreationModal");
+      modal.style.display = "block";
+    }
+
+    function closeChannelCreationModal() {
+      const modal = document.getElementById("channelCreationModal");
+      modal.style.display = "none";
+    }
+
+    function createChannel() {
+      const newChannelName = document.getElementById("newChannelName").value;
+      if (newChannelName.trim() !== "") {
+        const newChannel = { id: channels.length + 1, name: newChannelName };
+        channels.push(newChannel);
+
+        const button = document.createElement("button");
+        button.textContent = newChannel.name;
+        button.addEventListener("click", function() {
+          switchChannel(newChannel);
+        });
+
+        const listItem = document.createElement("li");
+        listItem.appendChild(button);
+
+        document.getElementById("channelList").appendChild(listItem);
+
+        switchChannel(newChannel);
+        closeChannelCreationModal();
+      }
+    }
+
+    function toggleDropdown() {
+      const dropdownMenu = document.getElementById("dropdownMenu");
+      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    }
+
+    window.onload = function () {
+  const storedUser = localStorage.getItem("loggedInUser");
+
+  if (storedUser) {
+    loggedInUser = JSON.parse(storedUser);
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("channels").style.display = "block"; // Show channels section
+    createChannelButtons();
+    loadMessagesFromLocalStorage();
+    switchChannel(getCurrentChannel());
+  }
+};
+
+
+function logout() {
+  loggedInUser = null;
+  localStorage.removeItem("loggedInUser"); // Remove user data from local storage
+  document.getElementById("channels").style.display = "none";
+  document.getElementById("chatSection").style.display = "none";
+  document.getElementById("channelList").innerHTML = "";
+  document.getElementById("chatMessages").innerHTML = "";
+  document.getElementById("loginSection").style.display = "block";
+}
+
+
+  </script>
+</body>
+</html>
