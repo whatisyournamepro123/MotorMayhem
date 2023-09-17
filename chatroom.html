@@ -306,6 +306,16 @@
       background-color: #555;
       transform: scale(1.05);
     }
+
+    .edit-button {
+  background-color: #4caf50; /* Green color, you can change this */
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 5px; /* Add some spacing between the Edit button and the message text */
+}
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -449,6 +459,15 @@
           sender: loggedInUser.username
         });
 
+function editMessage(button) {
+  const messageContainer = button.parentElement.parentElement;
+  const messageTextElement = messageContainer.querySelector(".content p");
+
+  const editedMessage = prompt("Edit your message:", messageTextElement.textContent);
+
+  if (editedMessage !== null) {
+    messageTextElement.textContent = editedMessage;
+
         saveMessagesToLocalStorage();
 
         messageInput.value = "";
@@ -482,6 +501,14 @@
       const messageTextElement = document.createElement("p");
       messageTextElement.textContent = message;
       contentElement.appendChild(messageTextElement);
+
+      const editButton = document.createElement("button");
+  editButton.classList.add("edit-button");
+  editButton.textContent = "Edit";
+  editButton.addEventListener("click", function() {
+    editMessage(this);
+  });
+  contentElement.appendChild(editButton);
 
       messageContainer.appendChild(profileElement);
       messageContainer.appendChild(contentElement);
@@ -571,3 +598,4 @@
   </script>
 </body>
 </html>
+}
