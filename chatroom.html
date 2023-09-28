@@ -316,6 +316,22 @@
   cursor: pointer;
   margin-left: 5px; /* Add some spacing between the Edit button and the message text */
 }
+
+.context-menu {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -371,93 +387,100 @@
       </div>
       <div class="channel-creation-modal-footer">
         <button onclick="createChannel()">Create</button>
-      </div>
-    </div>
+
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="editMessage">Edit Message</div>
   </div>
 
   <script>
     const channels = [
-      { id: 1, name: "General" },
-      { id: 2, name: "Game Updates" },
-      { id: 3, name: "Admin Discussion" }
-    ];
+  { id: 1, name: "General" },
+  { id: 2, name: "Game Updates" },
+  { id: 3, name: "Admin Discussion" }
+];
 
-    const admins = [
-      { username: "Armaan", password: "Armaanexcel", displayName: "Armaan", profilePicture: "https://tr.rbxcdn.com/72a6d8f83ec23a37efd7c5c5a32adc63/150/150/AvatarHeadshot/Png" },
-      { username: "Abdulla", password: "Abdullaexcel", displayName: "Abdulla", profilePicture: "https://tr.rbxcdn.com/b790ce449cbbee68ee345be588de04eb/150/150/AvatarHeadshot/Png" },
-      { username: "carlos", password: "carlostwitter", displayName: "carlos", profilePicture: "https://tr.rbxcdn.com/c34d3a83e7bb86a5acfff83c17bd6954/150/150/AvatarHeadshot/Png" }
-    ];
+const admins = [
+  { username: "Armaan", password: "Armaanexcel", displayName: "Armaan", profilePicture: "https://tr.rbxcdn.com/72a6d8f83ec23a37efd7c5c5a32adc63/150/150/AvatarHeadshot/Png" },
+  { username: "Abdulla", password: "Abdullaexcel", displayName: "Abdulla", profilePicture: "https://tr.rbxcdn.com/b790ce449cbbee68ee345be588de04eb/150/150/AvatarHeadshot/Png" },
+  { username: "carlos", password: "carlostwitter", displayName: "carlos", profilePicture: "https://tr.rbxcdn.com/c34d3a83e7bb86a5acfff83c17bd6954/150/150/AvatarHeadshot/Png" }
+];
 
-    let loggedInUser = null;
-    let messages = [];
+let loggedInUser = null;
+let messages = [];
 
-    function loadMessagesFromLocalStorage() {
-      const storedMessages = localStorage.getItem("messages");
-      if (storedMessages) {
-        messages = JSON.parse(storedMessages);
-        messages.forEach(message => {
-          displayMessage(message.user, message.profilePicture, message.content, message.sender);
-        });
-      }
-    }
+function loadMessagesFromLocalStorage() {
+  const storedMessages = localStorage.getItem("messages");
+  if (storedMessages) {
+    messages = JSON.parse(storedMessages);
+    messages.forEach(message => {
+      displayMessage(message.user, message.profilePicture, message.content, message.sender);
+    });
+  }
+}
 
-    function saveMessagesToLocalStorage() {
-      localStorage.setItem("messages", JSON.stringify(messages));
-    }
+function saveMessagesToLocalStorage() {
+  localStorage.setItem("messages", JSON.stringify(messages));
+}
 
-    function createChannelButtons() {
-      const channelList = document.getElementById("channelList");
+function createChannelButtons() {
+  const channelList = document.getElementById("channelList");
 
-      channels.forEach(channel => {
-        const button = document.createElement("button");
-        button.textContent = channel.name;
-        button.addEventListener("click", function() {
-          switchChannel(channel);
-        });
-
-        const listItem = document.createElement("li");
-        listItem.appendChild(button);
-        channelList.appendChild(listItem);
-      });
-    }
-
-    function switchChannel(channel) {
-      document.getElementById("chatSection").style.display = "block";
-      document.getElementById("chatMessages").innerHTML = "";
-
-      const storedMessages = messages.filter(msg => msg.channel === channel.id);
-      storedMessages.forEach(message => {
-        displayMessage(message.user, message.profilePicture, message.content, message.sender);
-      });
-    }
-
-    const chatForm = document.getElementById("chatForm");
-    const messageInput = document.getElementById("messageInput");
-
-    messageInput.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
-      }
+  channels.forEach(channel => {
+    const button = document.createElement("button");
+    button.textContent = channel.name;
+    button.addEventListener("click", function() {
+      switchChannel(channel);
     });
 
-    chatForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-      sendMessage();
+    const listItem = document.createElement("li");
+    listItem.appendChild(button);
+    channelList.appendChild(listItem);
+  });
+}
+
+function switchChannel(channel) {
+  document.getElementById("chatSection").style.display = "block";
+  document.getElementById("chatMessages").innerHTML = "";
+
+  const storedMessages = messages.filter(msg => msg.channel === channel.id);
+  storedMessages.forEach(message => {
+    displayMessage(message.user, message.profilePicture, message.content, message.sender);
+  });
+}
+
+const chatForm = document.getElementById("chatForm");
+const messageInput = document.getElementById("messageInput");
+
+messageInput.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+chatForm.addEventListener("submit", function(event) {
+  event.preventDefault();
+  sendMessage();
+});
+
+function sendMessage() {
+  const message = messageInput.value;
+  if (message.trim() !== "") {
+    displayMessage(loggedInUser.displayName, loggedInUser.profilePicture, message, loggedInUser.username);
+
+    messages.push({
+      user: loggedInUser.displayName,
+      profilePicture: loggedInUser.profilePicture,
+      content: message,
+      channel: getCurrentChannel().id,
+      sender: loggedInUser.username
     });
 
-    function sendMessage() {
-      const message = messageInput.value;
-      if (message.trim() !== "") {
-        displayMessage(loggedInUser.displayName, loggedInUser.profilePicture, message, loggedInUser.username);
+    saveMessagesToLocalStorage();
 
-        messages.push({
-          user: loggedInUser.displayName,
-          profilePicture: loggedInUser.profilePicture,
-          content: message,
-          channel: getCurrentChannel().id,
-          sender: loggedInUser.username
-        });
+    messageInput.value = "";
+  }
+}
 
 function editMessage(button) {
   const messageContainer = button.parentElement.parentElement;
@@ -467,42 +490,40 @@ function editMessage(button) {
 
   if (editedMessage !== null) {
     messageTextElement.textContent = editedMessage;
+    saveMessagesToLocalStorage();
+    messageInput.value = "";
+  }
+}
 
-        saveMessagesToLocalStorage();
+function displayMessage(username, profilePicture, message, sender) {
+  const messageContainer = document.createElement("div");
+  messageContainer.classList.add("message");
 
-        messageInput.value = "";
-      }
-    }
+  const profileElement = document.createElement("div");
+  profileElement.classList.add("profile");
 
-    function displayMessage(username, profilePicture, message, sender) {
-      const messageContainer = document.createElement("div");
-      messageContainer.classList.add("message");
+  const profilePictureElement = document.createElement("img");
+  profilePictureElement.src = profilePicture;
+  profileElement.appendChild(profilePictureElement);
 
-      const profileElement = document.createElement("div");
-      profileElement.classList.add("profile");
+  const tooltipElement = document.createElement("div");
+  tooltipElement.classList.add("tooltip");
 
-      const profilePictureElement = document.createElement("img");
-      profilePictureElement.src = profilePicture;
-      profileElement.appendChild(profilePictureElement);
+  const tooltipTextElement = document.createElement("span");
+  tooltipTextElement.classList.add("tooltiptext");
+  tooltipTextElement.textContent = username;
+  tooltipElement.appendChild(tooltipTextElement);
 
-      const tooltipElement = document.createElement("div");
-      tooltipElement.classList.add("tooltip");
+  profileElement.appendChild(tooltipElement);
 
-      const tooltipTextElement = document.createElement("span");
-      tooltipTextElement.classList.add("tooltiptext");
-      tooltipTextElement.textContent = username;
-      tooltipElement.appendChild(tooltipTextElement);
+  const contentElement = document.createElement("div");
+  contentElement.classList.add("content");
 
-      profileElement.appendChild(tooltipElement);
+  const messageTextElement = document.createElement("p");
+  messageTextElement.textContent = message;
+  contentElement.appendChild(messageTextElement);
 
-      const contentElement = document.createElement("div");
-      contentElement.classList.add("content");
-
-      const messageTextElement = document.createElement("p");
-      messageTextElement.textContent = message;
-      contentElement.appendChild(messageTextElement);
-
-      const editButton = document.createElement("button");
+  const editButton = document.createElement("button");
   editButton.classList.add("edit-button");
   editButton.textContent = "Edit";
   editButton.addEventListener("click", function() {
@@ -510,92 +531,126 @@ function editMessage(button) {
   });
   contentElement.appendChild(editButton);
 
-      messageContainer.appendChild(profileElement);
-      messageContainer.appendChild(contentElement);
+  messageContainer.appendChild(profileElement);
+  messageContainer.appendChild(contentElement);
 
-      const chatMessages = document.getElementById("chatMessages");
-      chatMessages.appendChild(messageContainer);
+  const chatMessages = document.getElementById("chatMessages");
+  chatMessages.appendChild(messageContainer);
 
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Set color of sent message
-      if (sender === loggedInUser.username) {
-        messageTextElement.style.backgroundColor = "#000";
-        messageTextElement.style.color = "#fff";
-        messageTextElement.style.padding = "5px 10px";
-        messageTextElement.style.borderRadius = "5px";
-        messageTextElement.style.display = "inline-block";
-      }
+  if (sender === loggedInUser.username) {
+    messageTextElement.style.backgroundColor = "#000";
+    messageTextElement.style.color = "#fff";
+    messageTextElement.style.padding = "5px 10px";
+    messageTextElement.style.borderRadius = "5px";
+    messageTextElement.style.display = "inline-block";
+  }
+}
+
+function getCurrentChannel() {
+  return channels[0];
+}
+
+function login() {
+  const username = document.getElementById("usernameInput").value;
+  const password = document.getElementById("passwordInput").value;
+
+  const user = admins.find(admin => admin.username === username && admin.password === password);
+
+  if (user) {
+    loggedInUser = user;
+    document.getElementById("loginSection").style.display = "none";
+    createChannelButtons();
+    loadMessagesFromLocalStorage();
+    switchChannel(getCurrentChannel());
+  } else {
+    alert("Invalid credentials. Please try again.");
+  }
+}
+
+function logout() {
+  loggedInUser = null;
+  document.getElementById("loginSection").style.display = "block";
+  document.getElementById("channels").style.display = "none";
+  document.getElementById("chatSection").style.display = "none";
+  document.getElementById("channelList").innerHTML = "";
+  document.getElementById("chatMessages").innerHTML = "";
+}
+
+function openChannelCreationModal() {
+  const modal = document.getElementById("channelCreationModal");
+  modal.style.display = "block";
+}
+
+function closeChannelCreationModal() {
+  const modal = document.getElementById("channelCreationModal");
+  modal.style.display = "none";
+}
+
+function createChannel() {
+  const newChannelName = document.getElementById("newChannelName").value;
+  if (newChannelName.trim() !== "") {
+    const newChannel = { id: channels.length + 1, name: newChannelName };
+    channels.push(newChannel);
+
+    const button = document.createElement("button");
+    button.textContent = newChannel.name;
+    button.addEventListener("click", function() {
+      switchChannel(newChannel);
+    });
+
+    const listItem = document.createElement("li");
+    listItem.appendChild(button);
+
+    document.getElementById("channelList").appendChild(listItem);
+
+    switchChannel(newChannel);
+    closeChannelCreationModal();
+  }
+}
+
+function toggleDropdown() {
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+}
+
+let selectedMessage = null;
+
+function showContextMenu(event) {
+  event.preventDefault();
+
+  const contextMenu = document.getElementById('contextMenu');
+  contextMenu.style.display = 'block';
+  contextMenu.style.left = `${event.clientX}px`;
+  contextMenu.style.top = `${event.clientY}px`;
+
+  selectedMessage = event.target.closest('.message');
+}
+
+function hideContextMenu() {
+  const contextMenu = document.getElementById('contextMenu');
+  contextMenu.style.display = 'none';
+}
+
+document.addEventListener('contextmenu', showContextMenu);
+document.addEventListener('click', hideContextMenu);
+
+function editMessageFromContextMenu() {
+  if (selectedMessage) {
+    const messageTextElement = selectedMessage.querySelector('.content p');
+    const editedMessage = prompt('Edit your message:', messageTextElement.textContent);
+
+    if (editedMessage !== null) {
+      messageTextElement.textContent = editedMessage;
+      saveMessagesToLocalStorage();
     }
+  }
+  hideContextMenu();
+}
 
-    function getCurrentChannel() {
-      // Assume that the current channel is the first one
-      return channels[0];
-    }
+document.getElementById('editMessage').addEventListener('click', editMessageFromContextMenu);
 
-    function login() {
-      const username = document.getElementById("usernameInput").value;
-      const password = document.getElementById("passwordInput").value;
-
-      const user = admins.find(admin => admin.username === username && admin.password === password);
-
-      if (user) {
-        loggedInUser = user;
-        document.getElementById("loginSection").style.display = "none";
-        createChannelButtons();
-        loadMessagesFromLocalStorage();
-        switchChannel(getCurrentChannel());
-      } else {
-        alert("Invalid credentials. Please try again.");
-      }
-    }
-
-    function logout() {
-      loggedInUser = null;
-      document.getElementById("loginSection").style.display = "block";
-      document.getElementById("channels").style.display = "none";
-      document.getElementById("chatSection").style.display = "none";
-      document.getElementById("channelList").innerHTML = "";
-      document.getElementById("chatMessages").innerHTML = "";
-    }
-
-    function openChannelCreationModal() {
-      const modal = document.getElementById("channelCreationModal");
-      modal.style.display = "block";
-    }
-
-    function closeChannelCreationModal() {
-      const modal = document.getElementById("channelCreationModal");
-      modal.style.display = "none";
-    }
-
-    function createChannel() {
-      const newChannelName = document.getElementById("newChannelName").value;
-      if (newChannelName.trim() !== "") {
-        const newChannel = { id: channels.length + 1, name: newChannelName };
-        channels.push(newChannel);
-
-        const button = document.createElement("button");
-        button.textContent = newChannel.name;
-        button.addEventListener("click", function() {
-          switchChannel(newChannel);
-        });
-
-        const listItem = document.createElement("li");
-        listItem.appendChild(button);
-
-        document.getElementById("channelList").appendChild(listItem);
-
-        switchChannel(newChannel);
-        closeChannelCreationModal();
-      }
-    }
-
-    function toggleDropdown() {
-      const dropdownMenu = document.getElementById("dropdownMenu");
-      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
-    }
-  </script>
+</script>
 </body>
 </html>
-}
