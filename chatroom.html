@@ -332,6 +332,52 @@
   cursor: pointer;
 }
 
+.message .options {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .context-menu {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .context-menu-item {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .options {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.context-menu {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -385,8 +431,10 @@
         <label for="newChannelName">Channel Name:</label>
         <input type="text" id="newChannelName" placeholder="Enter channel name...">
       </div>
-      <div class="channel-creation-modal-footer">
-        <button onclick="createChannel()">Create</button>
+      
+        <div class="channel-creation-modal-footer">
+          <button onclick="createChannel()">Create</button>
+        </div>
 
   <div class="context-menu" id="contextMenu">
     <div class="context-menu-item" id="editMessage">Edit Message</div>
@@ -523,12 +571,19 @@ function displayMessage(username, profilePicture, message, sender) {
   messageTextElement.textContent = message;
   contentElement.appendChild(messageTextElement);
 
-  const editButton = document.createElement("button");
-  editButton.classList.add("edit-button");
-  editButton.textContent = "Edit";
-  editButton.addEventListener("click", function() {
-    editMessage(this);
-  });
+  const optionsDiv = document.createElement("div");
+optionsDiv.classList.add("options");
+const ellipsis = document.createTextNode("...");
+optionsDiv.appendChild(ellipsis);
+
+const editButton = document.createElement("div");
+editButton.classList.add("context-menu-item");
+editButton.id = "editMessage";
+editButton.textContent = "Edit Message";
+editButton.addEventListener("click", function() {
+  editMessage(this);
+});
+
   contentElement.appendChild(editButton);
 
   messageContainer.appendChild(profileElement);
@@ -561,6 +616,7 @@ function login() {
   if (user) {
     loggedInUser = user;
     document.getElementById("loginSection").style.display = "none";
+    document.getElementById("channels").style.display = "block";  // Show channels section
     createChannelButtons();
     loadMessagesFromLocalStorage();
     switchChannel(getCurrentChannel());
@@ -568,6 +624,7 @@ function login() {
     alert("Invalid credentials. Please try again.");
   }
 }
+
 
 function logout() {
   loggedInUser = null;
@@ -618,39 +675,55 @@ function toggleDropdown() {
 let selectedMessage = null;
 
 function showContextMenu(event) {
-  event.preventDefault();
+      event.preventDefault();
 
-  const contextMenu = document.getElementById('contextMenu');
-  contextMenu.style.display = 'block';
-  contextMenu.style.left = `${event.clientX}px`;
-  contextMenu.style.top = `${event.clientY}px`;
+      const contextMenu = document.getElementById('contextMenu');
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = `${event.clientX}px`;
+      contextMenu.style.top = `${event.clientY}px`;
 
-  selectedMessage = event.target.closest('.message');
-}
-
-function hideContextMenu() {
-  const contextMenu = document.getElementById('contextMenu');
-  contextMenu.style.display = 'none';
-}
-
-document.addEventListener('contextmenu', showContextMenu);
-document.addEventListener('click', hideContextMenu);
-
-function editMessageFromContextMenu() {
-  if (selectedMessage) {
-    const messageTextElement = selectedMessage.querySelector('.content p');
-    const editedMessage = prompt('Edit your message:', messageTextElement.textContent);
-
-    if (editedMessage !== null) {
-      messageTextElement.textContent = editedMessage;
-      saveMessagesToLocalStorage();
+      selectedMessage = event.target.closest('.message');
     }
-  }
-  hideContextMenu();
-}
 
-document.getElementById('editMessage').addEventListener('click', editMessageFromContextMenu);
+    document.addEventListener('contextmenu', showContextMenu);
 
-</script>
+    function editMessageFromContextMenu() {
+      if (selectedMessage) {
+        const messageTextElement = selectedMessage.querySelector('.content p');
+        const editedMessage = prompt('Edit your message:', messageTextElement.textContent);
+
+        if (editedMessage !== null) {
+          messageTextElement.textContent = editedMessage;
+          saveMessagesToLocalStorage();
+        }
+      }
+      hideContextMenu();
+    }
+
+    document.getElementById('editMessage').addEventListener('click', editMessageFromContextMenu);
+
+    function hideContextMenu() {
+      const contextMenu = document.getElementById('contextMenu');
+      contextMenu.style.display = 'none';
+    }
+
+    // New function to handle click on options (three dots)
+    function toggleContextMenu(event) {
+      event.stopPropagation();
+      const contextMenu = event.target.parentElement.querySelector('.context-menu');
+      contextMenu.style.display = contextMenu.style.display === "block" ? "none" : "block";
+    }
+
+    // Add an event listener to all the options elements
+    const optionsElements = document.querySelectorAll('.options');
+    optionsElements.forEach(element => {
+      element.addEventListener('click', toggleContextMenu);
+    });
+
+    <div class="context-menu" id="contextMenu">
+  <div class="context-menu-item" id="editMessage">Edit Message</div>
+</div>
+
+  </script>
 </body>
 </html>
