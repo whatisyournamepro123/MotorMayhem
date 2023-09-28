@@ -355,29 +355,6 @@
       cursor: pointer;
     }
 
-    .options {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-.context-menu {
-  display: none;
-  position: absolute;
-  z-index: 1000;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.context-menu-item {
-  padding: 10px;
-  cursor: pointer;
-}
-
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -431,10 +408,8 @@
         <label for="newChannelName">Channel Name:</label>
         <input type="text" id="newChannelName" placeholder="Enter channel name...">
       </div>
-      
-        <div class="channel-creation-modal-footer">
-          <button onclick="createChannel()">Create</button>
-        </div>
+      <div class="channel-creation-modal-footer">
+        <button onclick="createChannel()">Create</button>
 
   <div class="context-menu" id="contextMenu">
     <div class="context-menu-item" id="editMessage">Edit Message</div>
@@ -571,19 +546,12 @@ function displayMessage(username, profilePicture, message, sender) {
   messageTextElement.textContent = message;
   contentElement.appendChild(messageTextElement);
 
-  const optionsDiv = document.createElement("div");
-optionsDiv.classList.add("options");
-const ellipsis = document.createTextNode("...");
-optionsDiv.appendChild(ellipsis);
-
-const editButton = document.createElement("div");
-editButton.classList.add("context-menu-item");
-editButton.id = "editMessage";
-editButton.textContent = "Edit Message";
-editButton.addEventListener("click", function() {
-  editMessage(this);
-});
-
+  const editButton = document.createElement("button");
+  editButton.classList.add("edit-button");
+  editButton.textContent = "Edit";
+  editButton.addEventListener("click", function() {
+    editMessage(this);
+  });
   contentElement.appendChild(editButton);
 
   messageContainer.appendChild(profileElement);
@@ -616,7 +584,6 @@ function login() {
   if (user) {
     loggedInUser = user;
     document.getElementById("loginSection").style.display = "none";
-    document.getElementById("channels").style.display = "block";  // Show channels section
     createChannelButtons();
     loadMessagesFromLocalStorage();
     switchChannel(getCurrentChannel());
@@ -624,7 +591,6 @@ function login() {
     alert("Invalid credentials. Please try again.");
   }
 }
-
 
 function logout() {
   loggedInUser = null;
@@ -719,11 +685,6 @@ function showContextMenu(event) {
     optionsElements.forEach(element => {
       element.addEventListener('click', toggleContextMenu);
     });
-
-    <div class="context-menu" id="contextMenu">
-  <div class="context-menu-item" id="editMessage">Edit Message</div>
-</div>
-
   </script>
 </body>
 </html>
