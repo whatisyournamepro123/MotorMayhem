@@ -308,53 +308,42 @@
     }
 
     .edit-button {
-  background-color: #4caf50; /* Green color, you can change this */
+  background-color: #4caf50;
   color: #ffffff;
   border: none;
-  padding: 5px 10px;
+  padding: 3px 6px;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 5px; /* Add some spacing between the Edit button and the message text */
-}
-
-.context-menu {
-  display: none;
+  font-size: 12px;
   position: absolute;
-  z-index: 1000;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  top: 0;
+  right: 0;
+  margin: 5px;
 }
 
-.context-menu-item {
-  padding: 10px;
-  cursor: pointer;
-}
+.options {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-size: 20px;
+  }
 
-.message .options {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      cursor: pointer;
-      font-size: 20px;
-    }
+  .context-menu {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    right: 0;
+  }
 
-    .context-menu {
-      display: none;
-      position: absolute;
-      z-index: 1000;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .context-menu-item {
-      padding: 10px;
-      cursor: pointer;
-    }
-
+  .context-menu-item {
+    padding: 10px;
+    cursor: pointer;
+  }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -411,9 +400,28 @@
       <div class="channel-creation-modal-footer">
         <button onclick="createChannel()">Create</button>
 
-  <div class="context-menu" id="contextMenu">
-    <div class="context-menu-item" id="editMessage">Edit Message</div>
-  </div>
+        <div class="message">
+          <div class="profile">
+            <img src="profile_picture.jpg" alt="Profile Picture">
+          </div>
+          <div class="content">
+            <p>Message content goes here</p>
+            <div class="options" onclick="toggleContextMenu(event)">...</div>
+          </div>
+        </div>
+
+        <div class="message">
+          <div class="profile">
+            <img src="profile_picture.jpg" alt="Profile Picture">
+          </div>
+          <div class="content">
+            <p>Message content goes here</p>
+            <div class="options" onclick="toggleContextMenu(event)">...</div>
+            <div class="context-menu">
+              <div class="context-menu-item" onclick="editMessageFromContextMenu()">Edit Message</div>
+            </div>
+          </div>
+        </div>
 
   <script>
     const channels = [
@@ -640,51 +648,30 @@ function toggleDropdown() {
 
 let selectedMessage = null;
 
-function showContextMenu(event) {
-      event.preventDefault();
+  function toggleContextMenu(event) {
+    event.stopPropagation();
+    const contextMenu = event.target.parentElement.querySelector('.context-menu');
+    contextMenu.style.display = contextMenu.style.display === "block" ? "none" : "block";
+    selectedMessage = event.target.parentElement.parentElement;
+  }
 
-      const contextMenu = document.getElementById('contextMenu');
-      contextMenu.style.display = 'block';
-      contextMenu.style.left = `${event.clientX}px`;
-      contextMenu.style.top = `${event.clientY}px`;
+  function editMessageFromContextMenu() {
+    if (selectedMessage) {
+      const messageTextElement = selectedMessage.querySelector('.content p');
+      const editedMessage = prompt('Edit your message:', messageTextElement.textContent);
 
-      selectedMessage = event.target.closest('.message');
-    }
-
-    document.addEventListener('contextmenu', showContextMenu);
-
-    function editMessageFromContextMenu() {
-      if (selectedMessage) {
-        const messageTextElement = selectedMessage.querySelector('.content p');
-        const editedMessage = prompt('Edit your message:', messageTextElement.textContent);
-
-        if (editedMessage !== null) {
-          messageTextElement.textContent = editedMessage;
-          saveMessagesToLocalStorage();
-        }
+      if (editedMessage !== null) {
+        messageTextElement.textContent = editedMessage;
+        saveMessagesToLocalStorage();
       }
-      hideContextMenu();
     }
+    hideContextMenu();
+  }
 
-    document.getElementById('editMessage').addEventListener('click', editMessageFromContextMenu);
-
-    function hideContextMenu() {
-      const contextMenu = document.getElementById('contextMenu');
-      contextMenu.style.display = 'none';
-    }
-
-    // New function to handle click on options (three dots)
-    function toggleContextMenu(event) {
-      event.stopPropagation();
-      const contextMenu = event.target.parentElement.querySelector('.context-menu');
-      contextMenu.style.display = contextMenu.style.display === "block" ? "none" : "block";
-    }
-
-    // Add an event listener to all the options elements
-    const optionsElements = document.querySelectorAll('.options');
-    optionsElements.forEach(element => {
-      element.addEventListener('click', toggleContextMenu);
-    });
+  function hideContextMenu() {
+    const contextMenu = document.querySelector('.context-menu');
+    contextMenu.style.display = 'none';
+  }
   </script>
 </body>
 </html>
